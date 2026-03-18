@@ -1,0 +1,108 @@
+---
+# 1. The Backend Dummy Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dummy-backend
+  template:
+    metadata:
+      labels:
+        app: dummy-backend
+    spec:
+      containers:
+      - name: backend
+        image: hashicorp/http-echo:latest
+        args:
+        - "-text=Hello World from the Telecom Backend!"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+# 2. The Internal Service for the Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: dummy-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+# 3. The ConfigMap for the NGINX VNF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-vnf-config
+data:
+  nginx.conf: |
+    events {}
+    http {
+        upstream backend {
+            server backend-service:80;
+        }
+        server {
+            listen 80;
+            location / {
+                proxy_pass http://backend;
+            }
+        }
+    }
+---
+# 4. The NGINX VNF Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-vnf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-vnf
+  template:
+    metadata:
+      labels:
+        app: nginx-vnf
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-vnf-config
+---
+# 5. The External Service to expose the VNF
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-vnf-service
+spec:
+  type: NodePort
+  selector:
+    app: nginx-vnf
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30000
