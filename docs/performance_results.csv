@@ -1,0 +1,5 @@
+Timestamp,Environment,Duration (s),Concurrency,Total Requests,Throughput (req/s),Avg Latency (ms),P95 Latency (ms)
+2026-03-18 19:10:29,Edge,10,5,2553,255.3,19.65,61.7
+2026-03-18 19:11:39,Edge,30,50,8709,290.3,172.64,260.44
+2026-03-18 19:12:28,Cloud,10,5,4603,460.3,10.86,21.55
+2026-03-18 19:13:16,Cloud,30,50,20940,698.0,71.68,129.17

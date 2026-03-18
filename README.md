@@ -67,3 +67,12 @@ sudo k3s kubectl get pods # Verify everything is Running
 # Re-establish Grafana UI tunnel
 sudo k3s kubectl port-forward --address 0.0.0.0 svc/k8s-monitor-grafana 32000:80 &
 ```
+**Test Scenario A: The Baseline (Normal Load)**
+* **Goal:** Measure expected performance under standard, manageable traffic.
+* **Parameters:** 50 concurrent connections for 30 seconds.
+* **Execution (Run on both VMs):** `python3 generate_traffic.py --url http://<VM_IP>:30000 --env <Cloud/Edge> --concurrency 50 --duration 30`
+
+**Test Scenario B: The Stress Test (Overload)**
+* **Goal:** Identify the breaking point and observe "Compute Starvation" (the brownout we saw earlier).
+* **Parameters:** 400 concurrent connections for 60 seconds.
+* **Execution (Run on both VMs):** `python3 generate_traffic.py --url http://<VM_IP>:30000 --env <Cloud/Edge> --concurrency 400 --duration 60`
