@@ -32,3 +32,18 @@ A "Hello World" test was conducted via the host machine using HTTP GET requests 
 The declarative nature of Kubernetes meant that the exact same YAML manifest was used for both environments, ensuring high portability. However, there were differences in the command-line execution:
 * **Cloud (Minikube):** Required invoking the kubectl binary through the Minikube wrapper (`minikube kubectl --`). The heavier Docker runtime also resulted in a slightly longer initial image pull and pod startup time.
 * **Edge (K3s):** Exhibited lower complexity at the command line. K3s operates as a single systemd service with a seamlessly integrated kubectl (`k3s kubectl`). Container startup was noticeably faster due to the lightweight `containerd` runtime optimised for edge environments.
+
+# Task D: Experimental Design and Performance Monitoring
+
+## Traffic Scenarios and Parameters
+To evaluate the performance of the NGINX VNF, a custom asynchronous Python workload generator was developed using the `aiohttp` library. This allowed for high-concurrency HTTP GET requests simulating realistic, sustained user traffic hitting the edge load balancer.
+
+The following parameters were chosen for the tests:
+* **Target Payload:** HTTP GET requests to the NodePort, returning the backend's "Hello World" string.
+* **Concurrency:** 50 simultaneous TCP connections to simulate concurrent users.
+* **Duration:** 60 seconds per test run to allow the VNF resource usage to stabilise.
+* **Repetition:** The experiment was conducted 3 times per environment to ensure statistical reliability and calculate an accurate average throughput and latency.
+
+## Metric Collection Methodology
+1.  **Latency and Throughput:** Collected directly by the Python script. The script recorded the precise start and end times of every successful HTTP 200 OK response, calculating the total throughput (requests per second), average latency, and the 95th percentile latency. Results were automatically appended to a CSV file.
+2.  **Resource Utilisation (CPU & Memory):** Collected using the Kubernetes Metrics Server. During the active 60-second traffic generation, the `kubectl top pods` command was polled every 2 seconds via the Linux `watch` utility to observe and record the peak CPU (millicores) and Memory (MiB) consumption of the NGINX container.
