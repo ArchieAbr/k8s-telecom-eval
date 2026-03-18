@@ -4,3 +4,5 @@
 | :--- | :--- | :--- |
 | **Boot Error:** `VERR_INTNET_FLT_IF_NOT_FOUND` when starting `k8s-cloud-vm` due to Host-Only adapter failure. | 1. Verified Host-Only network exists in VirtualBox global Network Manager.<br>2. Opened Windows Network Connections (`ncpa.cpl`), verified `VirtualBox NDIS6` driver was ticked, and restarted the adapter. | Yes |
 
+
+| **Script Execution Halt:** `setup_cloud.sh` stopped executing after installing Docker. | 1. Identified `newgrp docker` command spawns a new shell, abandoning the script.<br>2. Manually executed the remaining Minikube installation commands in the active terminal. | Yes |
