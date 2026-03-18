@@ -14,3 +14,5 @@
 | **Helm Repository Not Found:** `sudo helm install` failed with `repo prometheus-community not found` on the Edge VM. | 1. Diagnosed a Linux user-context mismatch: K3s requires `sudo` to read its cluster configuration, but the Helm repository was previously added under the standard user profile.<br>2. Resolved by running `sudo helm repo add` and `sudo helm repo update` to ensure the repository was accessible to the root user executing the deployment. | Yes |
 
 | **Service Discovery Error:** `svc "k8s-monitor-kube-prometheus-prometheus" not found`. | 1. Diagnosed that the service name was truncated to `k8s-monitor-kube-prometheu-prometheus` in the cluster.<br>2. Updated the port-forward command with the truncated name. | Yes |
+
+| **API Connection Failure:** `Unable to connect to the server: no route to host` on Minikube IP. | 1. Diagnosed that the Minikube Docker container was either stopped or the Docker network bridge failed to initialise after VM reprovisioning.<br>2. Checked cluster state with `minikube status` and initiated `minikube start` to re-establish the internal Kubernetes API network route. | Yes |
