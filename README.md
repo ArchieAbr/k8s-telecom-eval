@@ -16,3 +16,19 @@ Both virtual machines were provisioned using Ubuntu Server 24.04 LTS. This was s
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Cloud-like** | Emulates a central data centre environment. | 2 Cores | 6 GB | 25 GB | Minikube (Full K8s) |
 | **Edge-like** | Emulates a resource-constrained MEC node. | 1 Core | 2 GB | 15 GB | K3s (Lightweight K8s) |
+
+# Task C: Deploy Network Function(s)
+
+## Deployment Summary
+The NGINX Layer 7 Load Balancer was successfully deployed alongside two ultra-lightweight dummy backend pods (`hashicorp/http-echo`). The deployment was executed using a unified declarative YAML manifest that provisioned the Deployments, internal routing Services, an NGINX ConfigMap, and an external NodePort Service (Port 30000).
+
+## Validation
+A "Hello World" test was conducted via the host machine using HTTP GET requests (`curl`) directed at the NodePort of both VMs. This successfully validated:
+1.  **External Ingress:** The NodePort correctly accepted external traffic.
+2.  **VNF Operation:** The NGINX container correctly processed the HTTP request using its injected ConfigMap.
+3.  **Internal Routing:** NGINX successfully reverse-proxied the traffic to the internal `dummy-backend` service, which returned the expected "Hello World from the Telecom Backend!" string.
+
+## Complexity Comparison (Cloud vs. Edge)
+The declarative nature of Kubernetes meant that the exact same YAML manifest was used for both environments, ensuring high portability. However, there were differences in the command-line execution:
+* **Cloud (Minikube):** Required invoking the kubectl binary through the Minikube wrapper (`minikube kubectl --`). The heavier Docker runtime also resulted in a slightly longer initial image pull and pod startup time.
+* **Edge (K3s):** Exhibited lower complexity at the command line. K3s operates as a single systemd service with a seamlessly integrated kubectl (`k3s kubectl`). Container startup was noticeably faster due to the lightweight `containerd` runtime optimised for edge environments.
