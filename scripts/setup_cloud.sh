@@ -14,4 +14,4 @@ rm minikube-linux-amd64
 echo "Starting Minikube cluster"
 minikube start --driver=docker --memory=4096 --cpus=2
 
-echo "Done"
+echo "Done"sudo apt-get install -y wrk
