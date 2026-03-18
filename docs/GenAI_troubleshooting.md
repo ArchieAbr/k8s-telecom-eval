@@ -16,3 +16,5 @@
 | **Service Discovery Error:** `svc "k8s-monitor-kube-prometheus-prometheus" not found`. | 1. Diagnosed that the service name was truncated to `k8s-monitor-kube-prometheu-prometheus` in the cluster.<br>2. Updated the port-forward command with the truncated name. | Yes |
 
 | **API Connection Failure:** `Unable to connect to the server: no route to host` on Minikube IP. | 1. Diagnosed that the Minikube Docker container was either stopped or the Docker network bridge failed to initialise after VM reprovisioning.<br>2. Checked cluster state with `minikube status` and initiated `minikube start` to re-establish the internal Kubernetes API network route. | Yes |
+
+| **Traffic Generator Routing Error:** `wrk` load test failed with `Connection refused` on `127.0.0.1:30000`. | 1. Diagnosed that `NodePort` services in Minikube (Docker driver) bind to the Minikube container's isolated IP, not the host VM's loopback interface.<br>2. Used `minikube ip` to dynamically retrieve the correct target IP and successfully re-routed the `wrk` test. | Yes |
