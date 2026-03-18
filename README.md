@@ -47,3 +47,23 @@ The following parameters were chosen for the tests:
 ## Metric Collection Methodology
 1.  **Latency and Throughput:** Collected directly by the Python script. The script recorded the precise start and end times of every successful HTTP 200 OK response, calculating the total throughput (requests per second), average latency, and the 95th percentile latency. Results were automatically appended to a CSV file.
 2.  **Resource Utilisation (CPU & Memory):** Collected using the Kubernetes Metrics Server. During the active 60-second traffic generation, the `kubectl top pods` command was polled every 2 seconds via the Linux `watch` utility to observe and record the peak CPU (millicores) and Memory (MiB) consumption of the NGINX container.
+
+## Resuming Work (Cold Boot Sequence)
+If the host machine has been turned off or the VMs restarted, run these steps to restore the testing environments:
+
+### 1. Cloud Environment
+SSH into the Cloud VM and wake up the Minikube cluster:
+```bash
+minikube start
+minikube kubectl -- get pods # Verify everything is Running
+# Re-establish Grafana UI tunnel
+minikube kubectl -- port-forward --address 0.0.0.0 svc/k8s-monitor-grafana 32000:80 &
+```
+### 2. Edge Environment
+SSH into the Edge VM. K3s runs as a systemd service, so the cluster starts automatically on boot. Simply restore the tunnel:
+
+```bash
+sudo k3s kubectl get pods # Verify everything is Running
+# Re-establish Grafana UI tunnel
+sudo k3s kubectl port-forward --address 0.0.0.0 svc/k8s-monitor-grafana 32000:80 &
+```
