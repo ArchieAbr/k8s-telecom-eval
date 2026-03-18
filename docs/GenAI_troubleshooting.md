@@ -12,3 +12,5 @@
 | **Manifest Pull Error:** `kubectl apply -k` failed with `evalsymlink failure` when trying to pull Prometheus CRDs from GitHub. | 1. Diagnosed as a `kubectl` remote URL kustomize quirk.<br>2. Proceeded with the `helm install` command, as the `kube-prometheus-stack` chart natively bundles necessary CRDs as a fallback. Verified successful deployment via pod status. | Yes |
 
 | **Helm Repository Not Found:** `sudo helm install` failed with `repo prometheus-community not found` on the Edge VM. | 1. Diagnosed a Linux user-context mismatch: K3s requires `sudo` to read its cluster configuration, but the Helm repository was previously added under the standard user profile.<br>2. Resolved by running `sudo helm repo add` and `sudo helm repo update` to ensure the repository was accessible to the root user executing the deployment. | Yes |
+
+| **Service Discovery Error:** `svc "k8s-monitor-kube-prometheus-prometheus" not found`. | 1. Diagnosed that the service name was truncated to `k8s-monitor-kube-prometheu-prometheus` in the cluster.<br>2. Updated the port-forward command with the truncated name. | Yes |
