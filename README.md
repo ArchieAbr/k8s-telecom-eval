@@ -3,6 +3,8 @@
 
 **Phase 1:** Environment Setup. Provisioning two Virtual Machines and installing the Kubernetes distributions (e.g., Minikube for Cloud, K3s for Edge).
 
+**Phase 2:** Writing Manifests. Creating the standard Kubernetes YAML files to deploy NGINX load balancer and backend pods. I will apply these to both environments.
+
 # Task B: Environment Setup
 
 ## Operating System Selection
