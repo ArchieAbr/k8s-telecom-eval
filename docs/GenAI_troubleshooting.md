@@ -8,3 +8,5 @@
 | **Script Execution Halt:** `setup_cloud.sh` stopped executing after installing Docker. | 1. Identified `newgrp docker` command spawns a new shell, abandoning the script.<br>2. Manually executed the remaining Minikube installation commands in the active terminal. | Yes |
 
 | **Connectivity Failure:** `curl` command to Cloud VM NodePort failed with "Couldn't connect to server". | 1. Diagnosed issue as Minikube Docker driver network isolation (network within a network).<br>2. Applied `kubectl port-forward --address 0.0.0.0` to bridge the Ubuntu host network interface with the internal Minikube cluster network. | Yes |
+
+| **Manifest Pull Error:** `kubectl apply -k` failed with `evalsymlink failure` when trying to pull Prometheus CRDs from GitHub. | 1. Diagnosed as a `kubectl` remote URL kustomize quirk.<br>2. Proceeded with the `helm install` command, as the `kube-prometheus-stack` chart natively bundles necessary CRDs as a fallback. Verified successful deployment via pod status. | Yes |
