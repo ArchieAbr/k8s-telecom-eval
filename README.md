@@ -38,15 +38,8 @@ The declarative nature of Kubernetes meant that the exact same YAML manifest was
 ## Traffic Scenarios and Parameters
 To evaluate the performance of the NGINX VNF, a custom asynchronous Python workload generator was developed using the `aiohttp` library. This allowed for high-concurrency HTTP GET requests simulating realistic, sustained user traffic hitting the edge load balancer.
 
-The following parameters were chosen for the tests:
-* **Target Payload:** HTTP GET requests to the NodePort, returning the backend's "Hello World" string.
-* **Concurrency:** 50 simultaneous TCP connections to simulate concurrent users.
-* **Duration:** 60 seconds per test run to allow the VNF resource usage to stabilise.
-* **Repetition:** The experiment was conducted 3 times per environment to ensure statistical reliability and calculate an accurate average throughput and latency.
-
 ## Metric Collection Methodology
 1.  **Latency and Throughput:** Collected directly by the Python script. The script recorded the precise start and end times of every successful HTTP 200 OK response, calculating the total throughput (requests per second), average latency, and the 95th percentile latency. Results were automatically appended to a CSV file.
-2.  **Resource Utilisation (CPU & Memory):** Collected using the Kubernetes Metrics Server. During the active 60-second traffic generation, the `kubectl top pods` command was polled every 2 seconds via the Linux `watch` utility to observe and record the peak CPU (millicores) and Memory (MiB) consumption of the NGINX container.
 
 ## Resuming Work (Cold Boot Sequence)
 If the host machine has been turned off or the VMs restarted, run these steps to restore the testing environments:
@@ -67,12 +60,3 @@ sudo k3s kubectl get pods # Verify everything is Running
 # Re-establish Grafana UI tunnel
 sudo k3s kubectl port-forward --address 0.0.0.0 svc/k8s-monitor-grafana 32000:80 &
 ```
-**Test Scenario A: The Baseline (Normal Load)**
-* **Goal:** Measure expected performance under standard, manageable traffic.
-* **Parameters:** 50 concurrent connections for 30 seconds.
-* **Execution (Run on both VMs):** `python3 generate_traffic.py --url http://<VM_IP>:30000 --env <Cloud/Edge> --concurrency 50 --duration 30`
-
-**Test Scenario B: The Stress Test (Overload)**
-* **Goal:** Identify the breaking point and observe "Compute Starvation" (the brownout we saw earlier).
-* **Parameters:** 400 concurrent connections for 60 seconds.
-* **Execution (Run on both VMs):** `python3 generate_traffic.py --url http://<VM_IP>:30000 --env <Cloud/Edge> --concurrency 400 --duration 60`
