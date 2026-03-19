@@ -3,26 +3,14 @@
 | Problem | Proposed AI Solution | Did it work? |
 | :--- | :--- | :--- |
 | **Boot Error:** `VERR_INTNET_FLT_IF_NOT_FOUND` when starting `k8s-cloud-vm` due to Host-Only adapter failure. | 1. Verified Host-Only network exists in VirtualBox global Network Manager.<br>2. Opened Windows Network Connections (`ncpa.cpl`), verified `VirtualBox NDIS6` driver was ticked, and restarted the adapter. | Yes |
-
-
 | **Script Execution Halt:** `setup_cloud.sh` stopped executing after installing Docker. | 1. Identified `newgrp docker` command spawns a new shell, abandoning the script.<br>2. Manually executed the remaining Minikube installation commands in the active terminal. | Yes |
-
 | **Connectivity Failure:** `curl` command to Cloud VM NodePort failed with "Couldn't connect to server". | 1. Diagnosed issue as Minikube Docker driver network isolation (network within a network).<br>2. Applied `kubectl port-forward --address 0.0.0.0` to bridge the Ubuntu host network interface with the internal Minikube cluster network. | Yes |
-
 | **Manifest Pull Error:** `kubectl apply -k` failed with `evalsymlink failure` when trying to pull Prometheus CRDs from GitHub. | 1. Diagnosed as a `kubectl` remote URL kustomize quirk.<br>2. Proceeded with the `helm install` command, as the `kube-prometheus-stack` chart natively bundles necessary CRDs as a fallback. Verified successful deployment via pod status. | Yes |
-
 | **Helm Repository Not Found:** `sudo helm install` failed with `repo prometheus-community not found` on the Edge VM. | 1. Diagnosed a Linux user-context mismatch: K3s requires `sudo` to read its cluster configuration, but the Helm repository was previously added under the standard user profile.<br>2. Resolved by running `sudo helm repo add` and `sudo helm repo update` to ensure the repository was accessible to the root user executing the deployment. | Yes |
-
 | **Service Discovery Error:** `svc "k8s-monitor-kube-prometheus-prometheus" not found`. | 1. Diagnosed that the service name was truncated to `k8s-monitor-kube-prometheu-prometheus` in the cluster.<br>2. Updated the port-forward command with the truncated name. | Yes |
-
 | **API Connection Failure:** `Unable to connect to the server: no route to host` on Minikube IP. | 1. Diagnosed that the Minikube Docker container was either stopped or the Docker network bridge failed to initialise after VM reprovisioning.<br>2. Checked cluster state with `minikube status` and initiated `minikube start` to re-establish the internal Kubernetes API network route. | Yes |
-
 | **Traffic Generator Routing Error:** `wrk` load test failed with `Connection refused` on `127.0.0.1:30000`. | 1. Diagnosed that `NodePort` services in Minikube (Docker driver) bind to the Minikube container's isolated IP, not the host VM's loopback interface.<br>2. Used `minikube ip` to dynamically retrieve the correct target IP and successfully re-routed the `wrk` test. | Yes |
-
 | **Edge Control Plane Crash:** `Unable to connect to the server: net/http: TLS handshake timeout` when running kubectl commands on Edge node. | 1. Diagnosed that extreme CPU starvation during the 400-connection load test caused the K3s API server to become unresponsive and drop port-forwarded connections.<br>2. Executed a system-level restart of the K3s service (`sudo systemctl restart k3s`) to restore the control plane once the load test concluded. | Yes |
-
 | **Kernel Soft Lockup:** `watchdog: BUG: soft lockup - CPU#1 stuck for 35s!` observed on Cloud VM. | 1. Diagnosed as total CPU exhaustion where the VNF workload prevented the kernel watchdog from executing.<br>2. Identified the need for Kubernetes Resource Quotas (CPU limits) to prevent a single VNF from destabilising the entire node—a key finding for the "Improvements" section of the report. | Yes |
-
 | **Execution Error:** `iperf3.exe` failed due to missing `cygwin1.dll`. | 1. Identified missing runtime dependencies required for the Windows iperf3 binary.<br>2. Resolved by co-locating the necessary DLLs within the project script directory, ensuring the network benchmarking tool is portable and functional within the Git Bash environment. | Yes |
-
 | **Network Proxy Bottleneck:** Cloud environment `wrk` throughput was artificially capped at ~715 req/s with flat CPU utilisation during saturation testing. | 1. Diagnosed the `kubectl port-forward` proxy as a management-plane bottleneck unable to handle high-volume data-plane traffic.<br>2. Installed `wrk` directly inside the Cloud VM.<br>3. Re-executed the stress test natively against the internal Minikube Cluster IP (`192.168.49.2`), bypassing the user-space proxy. This successfully revealed the true VNF hardware saturation point (>1150 req/s) and generated valid comparative metrics. | Yes |
